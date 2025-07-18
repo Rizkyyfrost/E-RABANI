@@ -1,749 +1,147 @@
 <!DOCTYPE html>
-<html lang="id">  
-<head>  
-  <meta charset="UTF-8">  
-  <meta name="viewport" content="width=device-width, initial-scale=1">  
-  <title>Growatt SPF 6000 - Papanggo</title>  
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />  
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Video Mobile UI - Gaya Game Beneran</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }  
-    body { background: #f0f2f5; padding-bottom: 80px; color: #333; }  
-    
-    header {  
-      background: #ffffff;  
-      padding: 12px 16px;  
-      display: flex;  
-      justify-content: space-between;  
-      align-items: center;  
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);  
-      position: sticky;  
-      top: 0;  
-      z-index: 100;  
-    }  
-    
-    .back-btn, .add-btn {  
-      width: 36px;  
-      height: 36px;  
-      border-radius: 50%;  
-      background: #f0f4f8;  
-      display: flex;  
-      align-items: center;  
-      justify-content: center;  
-      font-size: 18px;  
-      cursor: pointer;  
-    }  
-    
-    .title {  
-      font-weight: 600;  
-      font-size: 1.1rem;  
-    }  
-    
-    .location-bar {  
-      background: #e8f4ff;  
-      padding: 10px 16px;  
-      font-size: 0.85rem;  
-      color: #2d6cb4;  
-      display: flex;  
-      justify-content: space-between;  
-      align-items: center;  
-      border-bottom: 1px solid #d0e5ff;  
-    }  
-    
-    .pv-info {  
-      display: flex;  
-      gap: 8px;  
-      align-items: center;  
-    }  
-    
-    .pv-tag {  
-      background: #2d6cb4;  
-      color: white;  
-      padding: 2px 8px;  
-      border-radius: 12px;  
-      font-size: 0.75rem;  
-    }  
-    
-    .section {  
-      margin: 16px;  
-      background: #fff;  
-      border-radius: 16px;  
-      padding: 20px;  
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);  
-    }  
-    
-    .weather-card {  
-      background: linear-gradient(135deg, #4b6cb7, #182848);  
-      border-radius: 16px;  
-      color: white;  
-      padding: 20px;  
-      position: relative;  
-      overflow: hidden;  
-      margin-bottom: 16px;  
-    }  
-    
-    .weather-overlay {  
-      position: absolute;  
-      top: 0;  
-      left: 0;  
-      right: 0;  
-      bottom: 0;  
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="30" cy="30" r="5" fill="white" fill-opacity="0.2"/><circle cx="70" cy="40" r="7" fill="white" fill-opacity="0.2"/><circle cx="50" cy="70" r="4" fill="white" fill-opacity="0.2"/></svg>');  
-      opacity: 0.3;  
-    }  
-    
-    .weather-content {  
-      position: relative;  
-      z-index: 2;  
-    }  
-    
-    .weather-status {  
-      display: flex;  
-      align-items: center;  
-      gap: 8px;  
-      font-size: 1rem;  
-      margin-bottom: 5px;  
-    }  
-    
-    .today-generation {  
-      font-size: 2.5rem;  
-      font-weight: 700;  
-      margin: 10px 0;  
-    }  
-    
-    .generation-label {  
-      font-size: 0.9rem;  
-      opacity: 0.9;  
-      margin-bottom: 5px;  
-    }  
-    
-    .month-total {  
-      display: flex;  
-      gap: 20px;  
-      margin-top: 15px;  
-    }  
-    
-    .month-total > div {  
-      flex: 1;  
-    }  
-    
-    .month-total-value {  
-      font-size: 1.3rem;  
-      font-weight: 600;  
-      margin-top: 3px;  
-    }  
-    
-    .flow-section {  
-      padding: 20px 15px;  
-    }  
-    
-    .flow-title {  
-      display: flex;  
-      align-items: center;  
-      gap: 8px;  
-      font-size: 0.95rem;  
-      color: #2d6cb4;  
-      margin-bottom: 15px;  
-    }  
-    
-    .flow-diagram {  
-      display: grid;  
-      grid-template-columns: 1fr 30px 1fr 30px 1fr;  
-      align-items: center;  
-      text-align: center;  
-      gap: 5px;  
-      margin: 20px 0;  
-    }  
-    
-    .flow-item {  
-      padding: 12px 8px;  
-      border-radius: 12px;  
-      background: #f8fafd;  
-    }  
-    
-    .flow-item.pv {  
-      border: 1px solid #ffc107;  
-    }  
-    
-    .flow-item.load {  
-      border: 1px solid #4caf50;  
-    }  
-    
-    .flow-item.grid {  
-      border: 1px solid #9e9e9e;  
-    }  
-    
-    .flow-label {  
-      font-size: 0.8rem;  
-      margin-bottom: 5px;  
-      display: flex;  
-      align-items: center;  
-      justify-content: center;  
-      gap: 4px;  
-    }  
-    
-    .flow-value {  
-      font-weight: 700;  
-      font-size: 1.1rem;  
-    }  
-    
-    .flow-arrow {  
-      font-size: 1.5rem;  
-      color: #666;  
-    }  
-    
-    .battery-section {  
-      display: flex;  
-      align-items: center;  
-      justify-content: space-between;  
-      background: #f0f7ff;  
-      padding: 15px;  
-      border-radius: 14px;  
-      margin-top: 15px;  
-    }  
-    
-    .battery-info {  
-      display: flex;  
-      align-items: center;  
-      gap: 10px;  
-    }  
-    
-    .battery-icon {  
-      font-size: 1.8rem;  
-      color: #4caf50;  
-    }  
-    
-    .battery-text {  
-      font-size: 0.95rem;  
-    }  
-    
-    .battery-text strong {  
-      font-weight: 600;  
-      color: #2e7d32;  
-    }  
-    
-    .battery-percent {  
-      font-weight: 700;  
-      font-size: 1.2rem;  
-      color: #2e7d32;  
-    }  
-    
-    .map-section {  
-      margin-top: 20px;  
-    }  
-    
-    .section-title {  
-      display: flex;  
-      align-items: center;  
-      gap: 8px;  
-      font-size: 1.1rem;  
-      font-weight: 600;  
-      margin-bottom: 15px;  
-      color: #333;  
-    }  
-    
-    #map {  
-      height: 220px;  
-      border-radius: 14px;  
-      overflow: hidden;  
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);  
-    }  
-    
-    .environment-section {  
-      margin-top: 20px;  
-    }  
-    
-    .environment-grid {  
-      display: grid;  
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 15px;  
-    }  
-    
-    @media (max-width: 768px) {
-      .environment-grid {
-        grid-template-columns: 1fr 1fr;
-      }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      touch-action: manipulation;
     }
-    
-    @media (max-width: 480px) {
-      .environment-grid {
-        grid-template-columns: 1fr;
-      }
+
+    body {
+      margin: 0;
+      background: black;
+      font-family: sans-serif;
+      overflow: hidden;
     }
-    
-    .env-card {  
-      background: #f8fafd;  
-      border-radius: 14px;  
-      padding: 18px;  
-      text-align: center;  
-      border: 1px solid #e0e7ff;  
-    }  
-    
-    .env-card.tree {  
-      border-top: 4px solid #ff9800;  
-    }  
-    
-    .env-card.temp {  
-      border-top: 4px solid #2196f3;  
-    }  
-    
-    .env-card.vibration {  
-      border-top: 4px solid #f44336;  
-    }  
-    
-    .env-icon {  
-      font-size: 2.2rem;  
-      margin-bottom: 12px;  
-    }  
-    
-    .env-card.tree .env-icon {  
-      color: #ff9800;  
-    }  
-    
-    .env-card.temp .env-icon {  
-      color: #2196f3;  
-    }  
-    
-    .env-card.vibration .env-icon {  
-      color: #f44336;  
-    }  
-    
-    .env-title {  
-      font-size: 0.95rem;  
-      margin-bottom: 5px;  
-      font-weight: 500;  
-    }  
-    
-    .env-value {  
-      font-size: 1.4rem;  
-      font-weight: 700;  
-      margin: 8px 0;  
-    }  
-    
-    .env-status {  
-      display: inline-block;  
-      padding: 4px 12px;  
-      border-radius: 20px;  
-      font-size: 0.85rem;  
-      font-weight: 500;  
-    }  
-    
-    .status-safe {  
-      background: #e8f5e9;  
-      color: #2e7d32;  
-    }  
-    
-    .status-warning {  
-      background: #fff8e1;  
-      color: #ff8f00;  
-    }  
-    
-    .status-danger {  
-      background: #ffebee;  
-      color: #c62828;  
-    }  
-    
-    .env-detail {  
-      font-size: 0.85rem;  
-      color: #666;  
-      margin-top: 5px;  
-    }  
-    
-    nav {  
-      position: fixed;  
-      bottom: 0;  
-      left: 0;  
-      right: 0;  
-      background: white;  
-      display: flex;  
-      justify-content: space-around;  
-      padding: 14px 0 10px;  
-      border-top: 1px solid #e0e0e0;  
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);  
-    }  
-    
-    .nav-item {  
-      display: flex;  
-      flex-direction: column;  
-      align-items: center;  
-      font-size: 0.75rem;  
-      color: #666;  
-      gap: 4px;  
-    }  
-    
-    .nav-icon {  
-      font-size: 1.4rem;  
-    }  
-    
-    .nav-item.active {  
-      color: #2d6cb4;  
-    }  
-    
-    .nav-item.active .nav-icon {  
-      color: #2d6cb4;  
-    }  
-    
-    .last-update {  
-      text-align: center;  
-      font-size: 0.75rem;  
-      color: #888;  
-      margin-top: 10px;  
+
+    #container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      height: 100vh;
     }
-    
-    .vibration-history {
-      margin-top: 15px;
-      background: #fff;
-      border-radius: 14px;
-      padding: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-    
-    .vibration-history h3 {
-      font-size: 1rem;
-      margin-bottom: 10px;
+
+    .dpad-button {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+      border: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 5px rgba(255,255,255,0.1);
+      color: white;
+      font-size: 22px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      transition: transform 0.1s ease;
+      z-index: 10;
     }
-    
-    .history-container {
+
+    .dpad-button:active {
+      transform: scale(0.9);
+      background-color: rgba(255,255,255,0.2);
+    }
+
+    /* Tombol arah di kiri bawah */
+    #btnMaju   { bottom: 90px; left: 80px; }
+    #btnKiri   { bottom: 20px; left: 20px; }
+    #btnKanan  { bottom: 20px; left: 140px; }
+    #btnMundur { bottom: 20px; left: 80px; }
+
+    /* Tombol aksi di kanan bawah */
+    #btnAksi {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,150,0.2), rgba(0,255,150,0.05));
+      border: 2px solid rgba(0,255,150,0.3);
+      color: #00ff99;
+      font-size: 16px;
+      font-weight: bold;
       display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 5px;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
     }
-    
-    .history-item {
-      min-width: 80px;
-      padding: 10px;
-      background: #f8fafd;
-      border-radius: 10px;
-      text-align: center;
-      border: 1px solid #e0e7ff;
+
+    /* Header di atas */
+    #header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-size: 18px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
     }
-    
-    .history-time {
-      font-size: 0.8rem;
-      color: #666;
-    }
-    
-    .history-value {
-      font-weight: 700;
-      margin: 5px 0;
-      font-size: 1.1rem;
-    }
-    
-    .history-status {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-    
-    /* Animation for vibration */
-    @keyframes vibrate {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-2px); }
-      50% { transform: translateX(2px); }
-      75% { transform: translateX(-1px); }
-      100% { transform: translateX(0); }
-    }
-    
-    .vibrating {
-      animation: vibrate 0.3s linear infinite;
-    }
-  </style>  
-</head>  
-<body>  
-  <header>  
-    <div class="back-btn">←</div>  
-    <div class="title">Growatt SPF 6000</div>  
-    <div class="add-btn">+</div>  
-  </header>  
-  
-  <div class="location-bar">  
-    <div class="location">PAPANGGO, JAKARTA UTARA</div>  
-    <div class="pv-info">  
-      <span class="pv-tag">PV capacity</span>  
-      <span>7.7kWp</span>  
-    </div>  
-  </div>  
-  
-  <div class="section">  
-    <div class="weather-card">  
-      <div class="weather-overlay"></div>  
-      <div class="weather-content">  
-        <div class="weather-status">  
-          <span id="weather-icon">☁️</span>  
-          <span id="weather-temp">Cloudy, 32.0°C</span>  
-        </div>  
-        <div class="generation-label">Today (kWh)</div>  
-        <div class="today-generation" id="today-kwh">28.3</div>  
-        <div class="month-total">  
-          <div>  
-            <div class="generation-label">This Month (kWh)</div>  
-            <div class="month-total-value" id="month-kwh">139.5</div>  
-          </div>  
-          <div>  
-            <div class="generation-label">Total (kWh)</div>  
-            <div class="month-total-value" id="total-kwh">217.4</div>  
-          </div>  
-        </div>  
-      </div>  
-    </div>  
-    
-    <div class="flow-section">  
-      <div class="flow-title">  
-        <span>⚡</span>  
-        <span id="battery-status">Battery Discharging</span>  
-      </div>  
-      <div class="flow-diagram">  
-        <div class="flow-item pv">  
-          <div class="flow-label">☀️ PV</div>  
-          <div class="flow-value" id="ppv-value">0.0W</div>  
-        </div>  
-        <div class="flow-arrow">→</div>  
-        <div class="flow-item load">  
-          <div class="flow-label">💡 Load</div>  
-          <div class="flow-value" id="load-value">1391.0W</div>  
-        </div>  
-        <div class="flow-arrow">←</div>  
-        <div class="flow-item grid">  
-          <div class="flow-label">🏠 Grid</div>  
-          <div class="flow-value" id="grid-value">0.0W</div>  
-        </div>  
-      </div>  
-      
-      <div class="battery-section">  
-        <div class="battery-info">  
-          <div class="battery-icon">🔋</div>  
-          <div class="battery-text">
-            Battery <strong id="battery-percent">100.0%</strong> — 
-            <span id="battery-action">Discharging</span>: <strong id="battery-power">1528W</strong>
-          </div>  
-        </div>  
-        <div class="battery-percent">Growatt 01 ▼</div>  
-      </div>  
-    </div>  
-  </div>  
-  
-  <div class="section map-section">  
-    <div class="section-title">  
-      <span>📍</span>  
-      <span>Lokasi & Pemantauan</span>  
-    </div>  
-    <div id="map"></div>  
-  </div>  
-  
-  <div class="section environment-section">  
-    <div class="section-title">  
-      <span>🌳</span>  
-      <span>Monitoring Lingkungan</span>  
-    </div>  
-    <div class="environment-grid">  
-      <div class="env-card tree">  
-        <div class="env-icon">🌳</div>  
-        <div class="env-title">Pohon Tumbang</div>  
-        <div class="env-value" id="tree-value">95%</div>  
-        <div class="env-status" id="tree-status">Aman</div>  
-        <div class="env-detail" id="tree-detail">Tidak terdeteksi pohon tumbang</div>  
-      </div>  
-      <div class="env-card temp">  
-        <div class="env-icon">🌡️</div>  
-        <div class="env-title">Suhu Rata-rata</div>  
-        <div class="env-value" id="temp-value">32.0°C</div>  
-        <div class="env-status" id="temp-status">Panas</div>  
-        <div class="env-detail" id="temp-detail">Suhu di atas normal</div>  
-      </div>  
-      <div class="env-card vibration">  
-        <div class="env-icon">📳</div>  
-        <div class="env-title">Getaran Harian</div>  
-        <div class="env-value" id="vibration-value">2.5 SR</div>  
-        <div class="env-status" id="vibration-status">Rendah</div>  
-        <div class="env-detail" id="vibration-detail">Tidak terdeteksi gempa signifikan</div>  
-      </div>  
-    </div>  
-    
-    <div class="vibration-history">
-      <h3>📈 Riwayat Getaran Terkini</h3>
-      <div class="history-container" id="vibration-history-container">
-        <!-- History items will be added here -->
-      </div>
-    </div>
-  </div>  
-  
-  <div class="last-update" id="last-update">  
-    Diperbarui: 15 Juli 2025 15:24 WIB  
-  </div>  
-  
-  <nav>  
-    <div class="nav-item">  
-      <div class="nav-icon">🏠</div>  
-      <div>Dashboard</div>  
-    </div>  
-    <div class="nav-item active">  
-      <div class="nav-icon">⚡</div>  
-      <div>Plant</div>  
-    </div>  
-    <div class="nav-item">  
-      <div class="nav-icon">🛠️</div>  
-      <div>Service</div>  
-    </div>  
-    <div class="nav-item">  
-      <div class="nav-icon">👤</div>  
-      <div>Me</div>  
-    </div>  
-  </nav>  
-  
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>  
-  <script>  
-    // Koordinat Papanggo, Jakarta Utara
-    const PAPANGGO_COORDS = [-6.1236, 106.8045];
-    
-    // Data untuk aplikasi  
-    const plantData = {  
-      location: "PAPANGGO, JAKARTA UTARA",  
-      pvCapacity: "7.7kWp",  
-      weather: {  
-        condition: "Cloudy",  
-        icon: "☁️",  
-        temperature: 32.0  
-      },  
-      generation: {  
-        today: 28.3,  
-        thisMonth: 139.5,  
-        total: 217.4  
-      },  
-      flow: {  
-        ppv: 0.0,  
-        load: 1391.0,  
-        grid: 0.0  
-      },  
-      battery: {  
-        percentage: 100.0,  
-        discharging: 1528,  
-        status: "Discharging"  
-      },  
-      environment: {  
-        treeFallRisk: 5, // 5% risk (95% safe)  
-        avgTemperature: 32.0,  
-        vibration: 2.5, // Skala Richter
-        vibrationHistory: []
-      },  
-      lastUpdate: new Date()  
-    };  
-    
-    // Format waktu update  
-    function updateTime() {
-      const now = new Date();
-      return now.toLocaleString('id-ID', {  
-        day: 'numeric',  
-        month: 'long',  
-        year: 'numeric',  
-        hour: '2-digit',  
-        minute: '2-digit',  
-        second: '2-digit',
-        timeZoneName: 'short'  
-      });
-    }
-    
-    // Inisialisasi peta  
-    const map = L.map('map').setView(PAPANGGO_COORDS, 16);  
-      
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {  
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'  
-    }).addTo(map);  
-      
-    // Tambahkan marker untuk lokasi  
-    const marker = L.marker(PAPANGGO_COORDS).addTo(map);  
-    marker.bindPopup("<b>Papanggo, Jakarta Utara</b><br>PLTS Growatt SPF 6000").openPopup();  
-      
-    // Tambahkan area risiko pohon tumbang (simulasi)  
-    const treeRiskArea = L.circle([PAPANGGO_COORDS[0] + 0.001, PAPANGGO_COORDS[1] - 0.001], {  
-      color: 'orange',  
-      fillColor: '#ff9800',  
-      fillOpacity: 0.2,  
-      radius: 150  
-    }).addTo(map);  
-      
-    treeRiskArea.bindPopup("Area Risiko Pohon Tumbang<br>Pemantauan aktif");  
-    
-    // Fungsi untuk mengupdate semua data
-    function updateAllData() {
-      // Update data generation (kWh)
-      plantData.generation.today = (28 + Math.random() * 2).toFixed(1);
-      plantData.generation.thisMonth = (138 + Math.random() * 3).toFixed(1);
-      plantData.generation.total = (216 + Math.random() * 3).toFixed(1);
-      
-      // Update suhu rata-rata
-      plantData.environment.avgTemperature = (30 + Math.random() * 4).toFixed(1);
-      plantData.weather.temperature = plantData.environment.avgTemperature;
-      
-      // Update status cuaca berdasarkan suhu
-      if (plantData.weather.temperature > 33) {
-        plantData.weather.condition = "Panas";
-        plantData.weather.icon = "🔥";
-      } else if (plantData.weather.temperature > 31) {
-        plantData.weather.condition = "Cerah";
-        plantData.weather.icon = "☀️";
-      } else {
-        plantData.weather.condition = "Berawan";
-        plantData.weather.icon = "☁️";
+
+    @media (max-width: 600px) {
+      .dpad-button {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
       }
-      
-      // Update data flow (Watt)
-      plantData.flow.ppv = (Math.random() * 3000).toFixed(1);
-      plantData.flow.load = (1000 + Math.random() * 1000).toFixed(1);
-      plantData.flow.grid = (Math.random() > 0.5 ? -1 : 1) * (Math.random() * 500).toFixed(1);
-      
-      // Update data battery
-      plantData.battery.percentage = (95 + Math.random() * 5).toFixed(1);
-      plantData.battery.discharging = (1400 + Math.random() * 300).toFixed(0);
-      plantData.battery.status = Math.random() > 0.7 ? "Charging" : "Discharging";
-      
-      // Update getaran
-      updateVibrationData();
-      
-      // Update waktu terakhir
-      plantData.lastUpdate = new Date();
-      
-      // Update UI
-      updateUI();
-    }
-    
-    // Fungsi untuk update data getaran
-    function updateVibrationData() {
-      // Simulasikan getaran acak antara 1.0 hingga 6.0 SR
-      const newVibration = (1 + Math.random() * 5).toFixed(1);
-      plantData.environment.vibration = newVibration;
-      
-      // Tambahkan ke riwayat (maksimal 6 data terakhir)
-      const now = new Date();
-      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      
-      plantData.environment.vibrationHistory.unshift({
-        value: newVibration,
-        time: timeStr
-      });
-      
-      if (plantData.environment.vibrationHistory.length > 6) {
-        plantData.environment.vibrationHistory.pop();
+      #btnAksi {
+        width: 60px;
+        height: 60px;
+        font-size: 14px;
       }
     }
-    
-    // Fungsi untuk update UI berdasarkan data terbaru
-    function updateUI() {
-      // Update generation
-      document.getElementById('today-kwh').textContent = plantData.generation.today;
-      document.getElementById('month-kwh').textContent = plantData.generation.thisMonth;
-      document.getElementById('total-kwh').textContent = plantData.generation.total;
-      
-      // Update weather
-      document.getElementById('weather-icon').textContent = plantData.weather.icon;
-      document.getElementById('weather-temp').textContent = 
-        `${plantData.weather.condition}, ${plantData.weather.temperature}°C`;
-      
-      // Update flow
-      document.getElementById('ppv-value').textContent = `${plantData.flow.ppv}W`;
-      document.getElementById('load-value').textContent = `${plantData.flow.load}W`;
-      document.getElementById('grid-value').textContent = `${plantData.flow.grid}W`;
-      
-          // Update batt
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <!-- Header -->
+  <div id="header">
+    <div>📍 Lokasi: Jalan Desa</div>
+    <div>🎮 Mode: Eksplorasi</div>
+  </div>
+
+  <!-- Video -->
+  <video id="vid" autoplay muted playsinline>
+    <source src="maju.mp4" type="video/mp4">
+  </video>
+
+  <!-- Tombol Arah (kiri bawah) -->
+  <div id="btnMaju" class="dpad-button" onclick="gantiVideo('maju')">↑</div>
+  <div id="btnKiri" class="dpad-button" onclick="gantiVideo('kiri')">←</div>
+  <div id="btnKanan" class="dpad-button" onclick="gantiVideo('kanan')">→</div>
+  <div id="btnMundur" class="dpad-button" onclick="gantiVideo('mundur')">↓</div>
+
+  <!-- Tombol Aksi (kanan bawah) -->
+  <div id="btnAksi" onclick="gantiVideo('mundur')">AKSI</div>
+</div>
+
+<script>
+  const vid = document.getElementById('vid');
+  let videoSekarang = 'maju';
+
+  function gantiVideo(arah) {
+    videoSekarang = arah;
+    vid.src = arah + '.mp4';
+    vid.play();
+  }
+</script>
+
+</body>
+</html>
