@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -194,7 +196,7 @@
 
   <main>
     <div class="card">
-      <h2 class="chart-title">Statistik Gempa Harian - <span id="namaBulan"></span> <span id="tahun"></span></h2>
+      <h2 class="chart-title">Statistik Getaran Harian - <span id="namaBulan"></span> <span id="tahun"></span></h2>
       <div class="chart" id="chart"></div>
       <div class="legend">
         <div class="legend-item">
@@ -323,6 +325,151 @@
       const label = document.createElement('div');
       label.className = 'label-gempa'; // Ganti nama class agar tidak konflik
       label.textContent = i + 1;
+
+      if (i + 1 === today) {
+          label.style.fontWeight = '700';
+          label.style.color = 'var(--text-primary)';
+      }
+
+      container.appendChild(barGroup);
+      container.appendChild(label);
+      chart.appendChild(container);
+    });
+  </script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Rabani - Dashboard Bencana</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f4f7fa; --card-bg: #ffffff; --text-primary: #1e293b;
+      --text-secondary: #64748b; --accent-primary: #3b82f6;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --border-radius: 12px; --font-family: 'Poppins', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-primary); }
+    
+    .page-header { padding: 30px 20px 10px 20px; max-width: 900px; margin: 0 auto; }
+    .header-title { font-size: 2.2rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+    .header-subtitle { font-size: 1rem; color: var(--text-secondary); margin-top: 4px; }
+
+    main { padding: 20px; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
+    .card { background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 20px; }
+    .chart-title {
+        font-size: 1.25em; font-weight: 600; margin-bottom: 20px;
+        text-align: center; position: relative;
+        display: flex; justify-content: center; align-items: center;
+    }
+    
+    .help-btn {
+        background-color: #eef2f7; color: var(--text-secondary); border: none;
+        width: 24px; height: 24px; border-radius: 50%;
+        font-weight: 700; font-family: serif; cursor: pointer;
+        transition: all 0.2s ease; position: absolute; right: 0;
+        top: 50%; transform: translateY(-50%); display: flex;
+        justify-content: center; align-items: center; font-size: 0.9rem;
+    }
+    .help-btn:hover { background-color: #d1d5db; color: var(--text-primary); }
+    
+    /* ... (CSS Modal & Grafik tidak berubah) ... */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal { background: var(--card-bg); padding: 25px; padding-top: 40px; border-radius: var(--border-radius); max-width: 500px; width: 90%; position: relative; display: none; transform: translateY(20px); transition: transform 0.3s ease; }
+    .modal-overlay.active .modal.active { display: block; transform: translateY(0); }
+    .modal h3 { font-size: 1.4rem; color: var(--text-primary); margin-bottom: 15px; }
+    .modal p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+    .modal-close-btn { position: absolute; top: 10px; right: 10px; background: #eef2f7; border: none; font-size: 1.2rem; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; }
+    .modal-close-btn:hover { background-color: #d1d5db; color: var(--text-primary); }
+    .chart { height: 280px; display: flex; align-items: flex-end; overflow-x: auto; padding: 10px 5px; gap: 12px; border-top: 1px solid #e2e8f0; -ms-overflow-style: none; scrollbar-width: none; }
+    .chart::-webkit-scrollbar { display: none; }
+    .bar-container { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .bar-group { display: flex; align-items: flex-end; gap: 2px; }
+    .bar { width: 9px; border-radius: 3px 3px 0 0; transition: all 0.3s ease; position: relative; cursor: pointer; }
+    .bar:hover { transform: translateY(-5px); }
+    .bar:hover::after { content: attr(data-value); position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background-color: var(--text-primary); color: var(--card-bg); padding: 4px 8px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+    .bar-kecil { background-color: #4ade80; } .bar-sedang { background-color: #facc15; } .bar-kuat { background-color: #fb923c; }   
+    .label-gempa { font-size: 0.75rem; margin-top: 8px; color: var(--text-secondary); }
+    .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px; font-size: 0.8rem; color: var(--text-secondary); }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+    .bar-chart { display: flex; flex-direction: column; gap: 16px; }
+    .bencana-bar { display: flex; align-items: center; gap: 10px; }
+    .bencana-label { width: 90px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); flex-shrink: 0; }
+    .bar-fill-wrapper { flex: 1; height: 28px; background-color: #e2e8f0; border-radius: 28px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(to right, #38bdf8, #3b82f6); width: 0; border-radius: 28px; animation: fillBar 1.5s ease-out forwards; }
+    @keyframes fillBar { to { width: var(--width); } }
+    .bencana-value { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); width: 40px; text-align: right; }
+    .map-container { width: 100%; height: 400px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .map-container iframe { width: 100%; height: 100%; border: none; }
+    .placeholder-content { min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: var(--text-secondary); }
+    .placeholder-content .error-code { font-size: 4rem; font-weight: 700; color: #d1d5db; }
+    .placeholder-content .error-message { margin-top: -10px; font-size: 1rem; }
+    .video-feed-container { width: 100%; background-color: #000; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .video-feed-container img { display: block; width: 100%; height: auto; }
+    
+    /*== CSS BARU UNTUK SENSOR LINGKUNGAN ==*/
+    .sensor-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    .sensor-item {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .sensor-icon { color: var(--accent-primary); width: 32px; flex-shrink: 0; }
+    .sensor-info { display: flex; flex-direction: column; }
+    .sensor-label { font-size: 0.9rem; color: var(--text-secondary); }
+    .sensor-value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    @media (max-width: 480px) {
+        .sensor-grid { grid-template-columns: 1fr; }
+    }
+
+    footer { text-align: center; padding: 30px 20px; margin-top: 20px; border-top: 1px solid #e2e8f0; }
+    .footer-icon svg { width: 36px; height: 36px; color: var(--accent-primary); margin-bottom: 12px; opacity: 0.8; }
+    .footer-powered-by { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1.5px; }
+    .footer-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
+    .footer-subtitle { font-size: 0.9rem; color: var(--text-secondary); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+      <h1 class="header-title">E-Rabani</h1>
+      <p class="header-subtitle">Elektrik pembangkit listrik tenaga Getar</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2 class="chart-title">Statistik Getaran Harian<button class="help-btn" data-modal-target="#modal-gempa-harian">?</button></h2>
+      <div class="chart" id="chart"></div>
+      <div class="legend"><div class="legend-item"><div class="legend-color" style="background-color: #4ade80;"></div><span>Kecil</span></div><div class="legend-item"><div class="legend-color" style="background-color: #facc15;"></div><span>Sedang</span></div><div class="legend-item"><div class="legend-color" style="background-color: #fb923c;"></div><span>Cukup Kuat</span></div></div>
+    </div>
+    <div class="card">
+      <h2 class="chart-title">Akumulasi Bencana Alam<button class="help-btn" data-modal-target="#modal-akumulasi">?</button></h2>
+      <div class="bar-chart"><div class="bencana-bar"><div class="bencana-label">Gempa</div><div class="bar-fill-wrapper"><div class="bar-fill" style="--width: 75%;"></div></div><div class="bencana-value">150</div></div><div class="bencana-bar"><div class="bencana-label">Banjir</div><div class="bar-fill-wrapper"><div class="bar-fill" style="--width: 60%;"></div></div><div class="bencana-value">120</div></div><div class="bencana-bar"><div class="bencana-label">Longsor</div><div class="bar-fill-wrapper"><div class="bar-fill" style="--width: 40%;"></div></div><div class="bencana-value">80</div></div><div class="bencana-bar"><div class="bencana-label">Kekeringan</div><div class="bar-fill-wrapper"><div class="bar-fill" style="--width: 30%;"></div></div><div class="bencana-value">60</div></div></div>
+    </div>
+    <div class="card">
+      <h2 class="chart-title">Peta Wilayah Jakarta<button class="help-btn" data-modal-target="#modal-peta">?</button></h2>
+      <div class="map-container"><iframe src="https://www.openstreetmap.org/export/embed.html?bbox=106.66236877441408%2C-6.382833353459369%2C107.01179504394533%2C-6.075913079633718&amp;layer=mapnik"+ 1;
 
       if (i + 1 === today) {
           label.style.fontWeight = '700';
