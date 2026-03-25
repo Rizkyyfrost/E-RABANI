@@ -1,4 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varrel Home Service</title>
 
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- QR -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+:root {
+    --primary:#0ea5e9;
+    --accent:#22c55e;
+    --bg:#020617;
+    --card:rgba(17,24,39,0.7);
+    --border:rgba(255,255,255,0.08);
+}
+
+body {
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background: radial-gradient(circle at top,#0f172a,#020617);
+    color:white;
+}
+
+/* HEADER */
+header {
+    background:linear-gradient(90deg,#0ea5e9,#22c55e);
+    padding:20px;
+    text-align:center;
+    font-size:24px;
+    font-weight:700;
+    box-shadow:0 5px 20px rgba(0,0,0,.4);
+}
+
+/* CONTAINER */
+.container {
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+}
+
+/* GRID */
+.grid {
+    display:grid;
+    gap:20px;
+}
+@media(min-width:768px){
+    .grid { grid-template-columns:1fr 1fr; }
+}
+
+/* CARD */
+.card {
+    background:var(--card);
+    backdrop-filter: blur(12px);
+    border:1px solid var(--border);
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+    transition:.3s;
+}
+.card:hover { transform:translateY(-3px); }
+
+h2 {
+    margin:0 0 15px;
+    font-size:18px;
+    color:#e2e8f0;
+}
+
+/* INPUT */
+input, select {
+    width:100%;
+    padding:12px;
+    margin:6px 0 15px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#020617;
+    color:white;
+    outline:none;
+}
+input:focus, select:focus {
+    border-color:var(--primary);
+    box-shadow:0 0 0 2px rgba(14,165,233,.2);
+}
+
+/* BUTTON */
+button {
+    width:100%;
+    background:linear-gradient(90deg,#0ea5e9,#22c55e);
+    border:none;
+    padding:12px;
+    border-radius:10px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+button:hover { transform:scale(1.02); }
+
+/* DASHBOARD */
+.dashboard {
+    display:flex;
+    gap:10px;
+}
+.stat {
+    flex:1;
+    padding:15px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.03);
+    text-align:center;
+}
+.stat h3 { margin:0; }
+.stat small { color:#94a3b8; }
+
+/* LIST */
+.service-item {
+    background:rgba(2,6,23,0.8);
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:12px;
+    border:1px solid var(--border);
+}
+
+/* STATUS */
+.status {
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:20px;
+}
+.menunggu { background:#f59e0b; }
+.proses { background:#0ea5e9; }
+.selesai { background:#22c55e; }
+
+/* QR */
+#reader {
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid var(--border);
+}
+</style>
+</head>
+
+<body>
+
+<header>🚀 Varrel Home Service</header>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+<div class="card dashboard">
+    <div class="stat">
+        <h3 id="total">0</h3>
+        <small>Total</small>
+    </div>
+    <div class="stat">
+        <h3 id="proses">0</h3>
+        <small>Proses</small>
+    </div>
+    <div class="stat">
+        <h3 id="selesai">0</h3>
+        <small>Selesai</small>
+    </div>
+</div>
+
+<div class="grid">
+
+<!-- FORM -->
+<div class="card">
+<h2>Input Servis</h2>
+
+<input id="nama" placeholder="Nama pelanggan">
+<input id="plat" placeholder="Plat kendaraan">
+
+<select id="motor">
+<option>Honda Beat</option>
+<option>Honda Vario</option>
+<option>Yamaha NMAX</option>
+<option>Yamaha Aerox</option>
+<option>Kawasaki Ninja</option>
+</select>
+
+<input type="date" id="tanggal">
+
+<select id="status">
+<option>Menunggu</option>
+<option>Proses</option>
+<option>Selesai</option>
+</select>
+
+<button onclick="tambahServis()">Simpan</button>
+</div>
+
+<!-- QR -->
+<div class="card">
+<h2>Scan QR</h2>
+<div id="reader"></div>
+<p id="hasilScan">Belum ada scan</p>
+</div>
+
+</div>
+
+<!-- SEARCH -->
+<div class="card">
+<h2>Pencarian</h2>
+<input id="cari" placeholder="Cari nama / plat..." oninput="tampilkan()">
+</div>
+
+<!-- LIST -->
+<div class="card">
+<h2>Daftar Servis</h2>
+<div id="listServis"></div>
+</div>
+
+</div>
+
+<script>
+function ambilData(){
+    return JSON.parse(localStorage.getItem("servis")) || [];
+}
+function simpanData(data){
+    localStorage.setItem("servis", JSON.stringify(data));
+}
+
+function tambahServis(){
+    const data=ambilData();
+    data.push({
+        nama:nama.value,
+        plat:plat.value,
+        motor:motor.value,
+        tanggal:tanggal.value,
+        status:status.value
+    });
+    simpanData(data);
+    tampilkan();
+}
+
+function hapus(i){
+    const data=ambilData();
+    data.splice(i,1);
+    simpanData(data);
+    tampilkan();
+}
+
+function tampilkan(){
+    const data=ambilData();
+    const keyword=cari.value.toLowerCase();
+    listServis.innerHTML="";
+
+    let proses=0, selesai=0;
+
+    data.forEach((d,i)=>{
+        if(d.nama.toLowerCase().includes(keyword)||d.plat.toLowerCase().includes(keyword)){
+
+            if(d.status==="Proses") proses++;
+            if(d.status==="Selesai") selesai++;
+
+            const div=document.createElement("div");
+            div.className="service-item";
+
+            div.innerHTML=`
+                <strong>${d.nama}</strong> (${d.plat})<br>
+                ${d.motor} | ${d.tanggal}<br>
+                <span class="status ${d.status.toLowerCase()}">${d.status}</span>
+                <br><br>
+                <button onclick="hapus(${i})">Hapus</button>
+            `;
+            listServis.appendChild(div);
+        }
+    });
+
+    total.innerText=data.length;
+    document.getElementById("proses").innerText=proses;
+    document.getElementById("selesai").innerText=selesai;
+}
+
+/* QR */
+function onScanSuccess(text){
+    hasilScan.innerText="Kode: "+text;
+}
+
+const qr=new Html5Qrcode("reader");
+Html5Qrcode.getCameras().then(devices=>{
+    if(devices.length){
+        qr.start(devices[0].id,{fps:10,qrbox:250},onScanSuccess);
+    }
+});
+
+tampilkan();
+</script>
+
+</body>
+</html>
 
 <!DOCTYPE html>
 <html lang="id">
